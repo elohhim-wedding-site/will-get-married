@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="pl">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ala i Jasiek</title>
+    <link
+      rel="stylesheet"
+      href="https://cdn.jsdelivr.net/npm/water.css@2/out/light.css"
+    />
+    <script>
+      // Set the date you're counting down to
+      const countDownDate = new Date("May 17, 2024 18:00:00").getTime();
+
+      // Update the countdown every 1 second
+      const timerInterval = setInterval(() => {
+        const now = new Date().getTime();
+        const distance = countDownDate - now;
+        const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+        const hours = Math.floor(
+          (distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60)
+        );
+        const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+        document.getElementById(
+          "countdown"
+        ).innerHTML = `${days}d ${hours}g ${minutes}m ${seconds}s`;
+        if (distance < 0) {
+          clearInterval(timerInterval);
+          document.getElementById("countdown").innerHTML = "00d 00g 00m 00s";
+        }
+      }, 500);
+    </script>
+    <style>
+      body {
+        font-family: "Courier New", Courier, monospace;
+      }
+
+      p {
+        font-size: 2em;
+      }
+
+      p.small {
+        font-size: 1em;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>👰🤵 Ala i Jasiek wezmą ślub (w końcu!)</h1>
+    <h2>⏰ Za?</h2>
+    <p id="countdown">00d 00g 00m 00s</p>
+  </body>
+</html>
