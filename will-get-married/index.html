@@ -8,6 +8,25 @@
       rel="stylesheet"
       href="https://cdn.jsdelivr.net/npm/water.css@2/out/light.css"
     />
+    <style>
+      body {
+        font-family: "Courier New", Courier, monospace;
+      }
+
+      p {
+        font-size: 2em;
+      }
+
+      p.small {
+        font-size: 1em;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>👰🤵 Ala i Jasiek wezmą ślub (w końcu!)</h1>
+    <h2>⏰ Za?</h2>
+    <p id="countdown">00d 00g 00m 00s</p>
+
     <script>
       // Set the date you're counting down to
       const countDownDate = new Date("May 17, 2024 18:00:00").getTime();
@@ -31,23 +50,89 @@
         }
       }, 500);
     </script>
-    <style>
-      body {
-        font-family: "Courier New", Courier, monospace;
-      }
+    <script>
+      // Crypto
+      (() => {
+        async function generateAESKey(password, salt) {
+          const iterations = 10000;
+          const keyLength = 256;
+          try {
+            const material = await window.crypto.subtle.importKey(
+              "raw",
+              new TextEncoder().encode(password),
+              { name: "PBKDF2" },
+              false,
+              ["deriveKey"]
+            );
 
-      p {
-        font-size: 2em;
-      }
+            const key = await window.crypto.subtle.deriveKey(
+              {
+                name: "PBKDF2",
+                salt,
+                iterations,
+                hash: "SHA-256",
+              },
+              material,
+              { name: "AES-GCM", length: keyLength },
+              true,
+              ["encrypt", "decrypt"]
+            );
+            return key;
+          } catch (error) {
+            console.error("Error generating key:", error);
+            return null;
+          }
+        }
 
-      p.small {
-        font-size: 1em;
-      }
-    </style>
-  </head>
-  <body>
-    <h1>👰🤵 Ala i Jasiek wezmą ślub (w końcu!)</h1>
-    <h2>⏰ Za?</h2>
-    <p id="countdown">00d 00g 00m 00s</p>
+        function fromBase64(str) {
+          return new Uint8Array(
+            atob(str)
+              .split("")
+              .map(function (c) {
+                return c.charCodeAt(0);
+              })
+          );
+        }
+
+        async function decryptMessage(ciphertext, iv, key) {
+          let decrypted = await window.crypto.subtle.decrypt(
+            {
+              name: "AES-GCM",
+              iv,
+            },
+            key,
+            ciphertext
+          );
+          return new TextDecoder().decode(decrypted);
+        }
+
+        async function execute() {
+          try {
+            const token = new URLSearchParams(window.location.search).get(
+              "token"
+            );
+
+            const data = {
+              salt: "3mn9XACOpGnf4gzj",
+              iv: "NCAPCqCmMqi63fNK",
+              ciphertext:
+                "Koep0MutwXeZOw3PYrgHObixSsabfp3BUvx6qmWIZaER0A/byM17acZHDARr90X6KcQh2oaXn9m2/ILiQJ9z7675sp41Cp4BVKZvVKyh1ObvSK72X7YMtE9HecVPZYxEfERy6oH1OdnkPVxxGgur2b/YT2z1ryfkwFsj9mKqKU1LBcZzOWvXzthKroO3zFXikwFz8lWed47iErzoEDwJoL8YAv3sC+As63NrvPU880ePHOb8S7JcpLy3HdbVv+WaQ0C9UlIP5rBFb/MQg3tzCAAYouCEyrG0igpq1Qdr99sTdsfXSgwK2Sotm35N1qliS+4RU1TYEcI+8V8ac64buBClUZV5p9cJ9PoIe08m41jVHCC2wJIGB3DMXhFoeqMU2VYc3bEc6TG12nE2gBR+2zxms24lSxuFLKN4gW2eOVCG6I6hHQtv7asbN3nhEeGoJudK2xO8FsWzElGxdWLjXUtk/3QUANe8w/Mwd7zmX7JcPwrouKdgkp4wy+bvj33baYgMxE+YNSOrMQQXmGF8KrZB/sMxTJZ6kk6sHxB2zlLmQn5G5ha4ajDjnIUc/CL7Bv7oKtla/eDHpIAsuUmIbjk80s4HSh5PCC8n3dhoFpVSIRRGCuQixp/AT911QIO9RTTfIzD3YQNgwg9sKwTpW++KYNvZGAvTzVM8h0D5sBhltj5syGSQYnrMdFYIpbcgGaIwqTk43j3A1JoKVB+zwGgkqA9I6GqdexqnoDBSoi/NSOU8O0wjFeh8EXk1CuAzEYeJ+dfpZqorAhv7dDR6+I95/0v14QKgkxOQ3fnjowwN86QLhs9xXJvC0Np3aG0diTtwSNtKAuSQASXPtUo=",
+            };
+
+            const key = await generateAESKey(token, fromBase64(data.salt));
+            const decrypted = await decryptMessage(
+              fromBase64(data.ciphertext),
+              fromBase64(data.iv),
+              key
+            );
+            document.querySelector("body").innerHTML += decrypted;
+          } catch {
+            document.querySelector("body").innerHTML +=
+              "<h2>🔒 ¯\\_(ツ)_/¯ 🔑</h2>";
+          }
+        }
+        execute();
+      })();
+    </script>
   </body>
 </html>
