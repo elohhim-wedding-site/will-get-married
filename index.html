@@ -20,18 +20,91 @@
       p.small {
         font-size: 1em;
       }
+
+      #bride,
+      #groom {
+        display: inline-block;
+      }
+
+      #groom {
+        position: relative;
+      }
+
+      .hearts {
+        position: absolute;
+        font-size: 0.25em;
+        white-space: nowrap;
+        top: 20%;
+        left: 20%;
+        animation: heart-beat 1s linear infinite;
+      }
+
+      @keyframes heart-beat {
+        0% {
+          transform: scale(1) rotate(0);
+        }
+        25% {
+          transform: scale(1.1) rotate(10deg);
+        }
+        50% {
+          transform: scale(1.2) rotate(0);
+        }
+        75% {
+          transform: scale(1.1) rotate(-10deg);
+        }
+        100% {
+          transform: scale(1) rotate(0);
+        }
+      }
+
+      .tear {
+        position: absolute;
+        font-size: 0.3em;
+        animation: tear-fall 1s ease-in infinite;
+      }
+
+      .tear.l {
+        top: 35%;
+        left: 27%;
+      }
+
+      .tear.r {
+        top: 35%;
+        left: 43%;
+        animation-delay: 0.5s;
+      }
+
+      @keyframes tear-fall {
+        0% {
+          transform: translateY(0);
+        }
+        100% {
+          transform: translateY(500%);
+        }
+      }
     </style>
   </head>
   <body>
-    <h1>👰🤵 Ala i Jasiek wezmą ślub (w końcu!)</h1>
+    <h1>
+      <span id="bride">👰</span><span id="groom">🤵</span>
+      Ala i Jasiek wezmą ślub (w końcu!)
+    </h1>
     <h2>⏰ Za?</h2>
     <p id="countdown">00d 00g 00m 00s</p>
+    <!-- CONTENT -->
+    <blockquote>
+      <p>
+        It is a love based on giving and receiving as well as having and
+        sharing. And the love that they give and have is shared and received.
+        And through this having and giving and sharing and receiving, we too can
+        share and love and have... and receive.
+      </p>
+      <footer>Joey Tribbiani</footer>
+    </blockquote>
 
     <script>
-      // Set the date you're counting down to
+      // COUNTDOWN
       const countDownDate = new Date("May 17, 2024 18:00:00").getTime();
-
-      // Update the countdown every 1 second
       const timerInterval = setInterval(() => {
         const now = new Date().getTime();
         const distance = countDownDate - now;
@@ -48,10 +121,91 @@
           clearInterval(timerInterval);
           document.getElementById("countdown").innerHTML = "00d 00g 00m 00s";
         }
-      }, 500);
+      }, 1000);
     </script>
     <script>
-      // Crypto secret
+      // EASTER 🥚
+      function calculateCenter(element) {
+        const rect = element.getBoundingClientRect();
+        const centerX = rect.left + rect.width / 2;
+        const centerY = rect.top + rect.height / 2;
+        return {
+          x: centerX,
+          y: centerY,
+        };
+      }
+
+      function calculateDistance(e1, e2) {
+        const c1 = calculateCenter(e1);
+        const c2 = calculateCenter(e2);
+        const distX = c1.x - c2.x;
+        const distY = c1.y - c2.y;
+        return Math.sqrt(distX ** 2 + distY ** 2);
+      }
+
+      function handleDistance() {
+        const distance = calculateDistance(bride.element, groom.element);
+        if (!groom.sad && distance > sadDistance) {
+          groom.sad = true;
+          groom.element.innerHTML = groom.tears;
+        } else if (groom.sad && distance <= sadDistance) {
+          groom.sad = false;
+          groom.element.innerHTML = groom.normal;
+        }
+        if (!groom.love && distance < loveDistance) {
+          groom.love = true;
+          groom.element.innerHTML = groom.hearts;
+        } else if (groom.love && distance >= loveDistance) {
+          groom.love = false;
+          groom.element.innerHTML = groom.normal;
+        }
+      }
+
+      function handleKeyDown(event) {
+        const speed = 10;
+        switch (event.key) {
+          case "w":
+            bride.y -= speed;
+            break;
+          case "s":
+            bride.y += speed;
+            break;
+          case "a":
+            bride.x -= speed;
+            break;
+          case "d":
+            bride.x += speed;
+            break;
+          case "r":
+            bride.x = 0;
+            bride.y = 0;
+        }
+        bride.element.style.transform = `translate(${bride.x}px, ${bride.y}px)`;
+        handleDistance();
+        return false;
+      }
+
+      document.addEventListener("keydown", handleKeyDown);
+
+      console.log("DON'T MAKE THE GROOM SAD... [WASD] for controls.");
+      const bride = {
+        x: 0,
+        y: 0,
+        element: document.getElementById("bride"),
+      };
+      const groom = {
+        element: document.getElementById("groom"),
+        sad: false,
+        love: false,
+        normal: `🤵`,
+        tears: `🤵<span class="tear l">💧</span><span class="tear r">💧</span>`,
+        hearts: `🤵<span class="hearts">❤️❤️</span>`,
+      };
+      const sadDistance = 100;
+      const loveDistance = 30;
+    </script>
+    <script>
+      // CRYPTO
       (() => {
         async function generateAESKey(password, salt) {
           const iterations = 10000;
@@ -106,6 +260,12 @@
           return new TextDecoder().decode(decrypted);
         }
 
+        function insertContent(content) {
+          document
+            .querySelector("blockquote")
+            .insertAdjacentHTML("beforebegin", content);
+        }
+
         async function execute() {
           try {
             const token = new URLSearchParams(window.location.search).get(
@@ -113,10 +273,10 @@
             );
 
             const data = {
-              salt: "3mn9XACOpGnf4gzj",
-              iv: "NCAPCqCmMqi63fNK",
+              salt: "BYyflN6cAUXGvk5t",
+              iv: "ZYiCA8obfScHynaB",
               ciphertext:
-                "Koep0MutwXeZOw3PYrgHObixSsabfp3BUvx6qmWIZaER0A/byM17acZHDARr90X6KcQh2oaXn9m2/ILiQJ9z7675sp41Cp4BVKZvVKyh1ObvSK72X7YMtE9HecVPZYxEfERy6oH1OdnkPVxxGgur2b/YT2z1ryfkwFsj9mKqKU1LBcZzOWvXzthKroO3zFXikwFz8lWed47iErzoEDwJoL8YAv3sC+As63NrvPU880ePHOb8S7JcpLy3HdbVv+WaQ0C9UlIP5rBFb/MQg3tzCAAYouCEyrG0igpq1Qdr99sTdsfXSgwK2Sotm35N1qliS+4RU1TYEcI+8V8ac64buBClUZV5p9cJ9PoIe08m41jVHCC2wJIGB3DMXhFoeqMU2VYc3bEc6TG12nE2gBR+2zxms24lSxuFLKN4gW2eOVCG6I6hHQtv7asbN3nhEeGoJudK2xO8FsWzElGxdWLjXUtk/3QUANe8w/Mwd7zmX7JcPwrouKdgkp4wy+bvj33baYgMxE+YNSOrMQQXmGF8KrZB/sMxTJZ6kk6sHxB2zlLmQn5G5ha4ajDjnIUc/CL7Bv7oKtla/eDHpIAsuUmIbjk80s4HSh5PCC8n3dhoFpVSIRRGCuQixp/AT911QIO9RTTfIzD3YQNgwg9sKwTpW++KYNvZGAvTzVM8h0D5sBhltj5syGSQYnrMdFYIpbcgGaIwqTk43j3A1JoKVB+zwGgkqA9I6GqdexqnoDBSoi/NSOU8O0wjFeh8EXk1CuAzEYeJ+dfpZqorAhv7dDR6+I95/0v14QKgkxOQ3fnjowwN86QLhs9xXJvC0Np3aG0diTtwSNtKAuSQASXPtUo=",
+                "a3K6mnSSNijJwu/KcuEgphbHG+oi81ulc/oDRlZClsDLfft7UxHvnaxqguvwPbmJaJsp+nuu7soyVJk62h52EWZzD1uakaPbcVKIOl3uzN8B2m3hJxfSk8RQIUjWYQsYubnhcOxiDqN4kIWggJ1dxKzxXKBRs28+VuGJyEmNiC/UZ60ueCBKuqYK18nuqfBB3fGFSG4TxCxBz1KFFQZR9+2FBblAg9rf/4AL0BUjCuTLS3plpFKXl60eKK8uBKbhXcOpV04Xr77Sfbi9S2lDiQYFmunQUUCWm2cki1dDCE+zRJ8JrerjnpA8NesmCTmJheRxqrQxj38cCnU92f9nR+Db3PDfDiych5b5nsMOWCq3pP4gNTRUpcvqtlS5A2UtAztowGZFBskZCLWFiemBb3g6CW7v6B6Ea2MnwmXZ9sFIexNKBOhQu24hvROCHg1bNTE9AKPZqb4SyA2jw+R2/UTff/AcEJOZKmZvpByp1FKZBNnMjCfwDUmMcrJaLfpm9+2I7f5KbK8vD5QZGJ4roVoE84PyaKZfX9+7FaVxhlIECQeNHQsbMM4Grsn3EkoBFZVY3DD72ZMJURpbVJ0bjlkU7ohAXqKNM6rqzlzXS4VpEf3trb3MjlXs95UVR6v2Gd2NRhIHFFHRRQFALDp490hDAJzWV86/UGbHHv66uXPhyE5uCZ8+TZgYipyaxmnNdDurTtOXCdTfuLiDsdqPcicJDCp5GgLn7BLHS00l+4eKmpbfejSzxeVSZOZbIil8Z847iXZF9XVVVe2gqRWVGVEzFwTSlpQQXogEAK9FrN8EmtT1W/7UJUUVXc2FxaBzuLqeOlW7SYG4onKURDLGAdH4d+xQp8GwQUT3CqnRl6sbH0VmSCxbvjIvY2MpbjqG1Nr5xjp4qjrCFboeAnvT0gjgfrYfJuaCC7tLMiCln7TScY5Xmbs/uhsUv+21yRXpW9qM19AKnVzF+/QEpVrocQ==",
             };
 
             const key = await generateAESKey(token, fromBase64(data.salt));
@@ -125,10 +285,9 @@
               fromBase64(data.iv),
               key
             );
-            document.querySelector("body").innerHTML += decrypted;
+            insertContent(decrypted);
           } catch {
-            document.querySelector("body").innerHTML +=
-              "<h2>🔒 ¯\\_(ツ)_/¯ 🔑</h2>";
+            insertContent("<h2>🔒 ¯\\_(ツ)_/¯ 🔑</h2>");
           }
         }
         execute();
